@@ -1,8 +1,8 @@
 # app.py
 from flask import Flask, render_template, redirect, flash
 import spotipy
+from . import settings # Loads the environment
 from werkzeug.utils import redirect
-from . import settings
 from spotipy.oauth2 import SpotifyOAuth
 
 app = Flask(__name__)
@@ -16,13 +16,15 @@ def index():
 @app.route('/connect-to-spotify')
 def spotify_auth():
     scope = "user-library-read"
+
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
 
     results = sp.current_user_saved_tracks()
     for idx, item in enumerate(results['items']):
         track = item['track']
         print(idx, track['artists'][0]['name'], " – ", track['name'])
-    return "Hi"
+
+    return repr(results)
 
 # Callback
 @app.route("/connect-to-spotipy/callback")
