@@ -3,12 +3,13 @@ import glob
 import random
 import numpy as np
 from PIL import Image
-from pathlib import Path
-from utils import squared, zoom_in
+from utils import centered_resize, zoom_in, pick_large_img_locs
 
 
 # TODO: 
 # - Add 2x2 and 3x3 cell images
+#       - Total number of possible nxn cell images: (NUM_COLS // n) * (NUM_ROWS // n)
+#       - Range of valid start columns for nxn cell images: 0 to NUM_COLS-n
 # - Add optional text
 
 
@@ -17,42 +18,46 @@ IN_FOLDER = "../images"
 OUT_FOLDER = "../processed-images"
 FILE_FORMATS = ["jpg", "png"]
 BG_COLOR = "#2f3030"
-COL_COUNT = 5
-ROW_COUNT = 5
-XGAP = 20
-YGAP = XGAP
-OUT_HEIGHT = 900
-OUT_WIDTH = 900
+NUM_COLS = 5
+NUM_ROWS = 5
+GAP_SIZE = 20
+OUT_HEIGHT = 2048
+OUT_WIDTH = 2048
 IMAGE_TILT = 20
-WIDTH_PER_COL = (OUT_WIDTH - XGAP * (COL_COUNT - 1)) // COL_COUNT
-HEIGHT_PER_COL = OUT_HEIGHT // ROW_COUNT
+CELL_WIDTH = (OUT_WIDTH - GAP_SIZE * (NUM_COLS - 1)) // NUM_COLS
+CELL_HEIGHT = (OUT_HEIGHT - GAP_SIZE * (NUM_ROWS - 1)) // NUM_ROWS
+NUM_LARGE_IMGS = 2
+LARGE_IMG_WIDTH = CELL_WIDTH * 2 + GAP_SIZE
+LARGE_IMG_HEIGHT = CELL_HEIGHT * 2 + GAP_SIZE
+NUM_IMGS = NUM_COLS * NUM_ROWS + NUM_LARGE_IMGS
+
 
 # Magic stuff. Basically, search for files with the given extensions and put them in a list.
-all_files = [Path(file) for format in FILE_FORMATS for file in glob.glob(f"{IN_FOLDER}/*.{format}")] * 4
-album_files = random.sample(all_files, COL_COUNT * ROW_COUNT)
+all_files = [file for format in FILE_FORMATS for file in glob.glob(f"{IN_FOLDER}/*.{format}")] * 4
+album_files = random.sample(all_files, NUM_IMGS)
 album_count = len(album_files)
+album_imgs = [Image.open(file) for file in album_files]
 
-# Open and put all album cover images into a list.
-album_imgs = []
-for file_path in album_files:
-    try:
-        with Image.open(file_path) as img:
-            img = squared(img)  # Crops the images into a square.
-            img = img.resize((WIDTH_PER_COL, WIDTH_PER_COL))  # Resize the square image into the desired dimensions.
-            album_imgs.append(img)
-    except OSError as e:
-        print(e)
-
-# Create a grid of album covers, pasting images into the final cover iteratively
+# Paste small album covers into a grid, iteratively
 playlist_cover = Image.new('RGB', (OUT_WIDTH, OUT_HEIGHT), color=BG_COLOR)
-xcursor = 0
-ycursor = 0
-for i, img in enumerate(album_imgs):
-    if i > 0 and i % ROW_COUNT == 0:  # The end of a colum.
-        xcursor += XGAP + WIDTH_PER_COL
-        ycursor = 0
+i = 0
+used_cells = set()
+for xcursor in range(0, OUT_WIDTH, GAP_SIZE + CELL_WIDTH):
+    for ycursor in range(0, OUT_HEIGHT, GAP_SIZE + CELL_HEIGHT):
+        img = album_imgs[i]
+        img = centered_resize(img, (CELL_WIDTH, CELL_HEIGHT))
+        playlist_cover.paste(img, box=(xcursor, ycursor))
+        i += 1
+
+# Paste large album covers, iteratively
+large_img_locs = pick_large_img_locs(NUM_COLS, NUM_ROWS, NUM_LARGE_IMGS)
+for col_index, row_index in large_img_locs:
+    img = album_imgs[i]
+    img = centered_resize(img, (LARGE_IMG_WIDTH, LARGE_IMG_HEIGHT))
+    xcursor = col_index * (GAP_SIZE + CELL_WIDTH)
+    ycursor = row_index * (GAP_SIZE + CELL_WIDTH)
     playlist_cover.paste(img, box=(xcursor, ycursor))
-    ycursor += img.height + YGAP
+    i += 1
 
 # Post-processing on the album grid
 playlist_cover = playlist_cover.rotate(IMAGE_TILT, fillcolor=BG_COLOR)
