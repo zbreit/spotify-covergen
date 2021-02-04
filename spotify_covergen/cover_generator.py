@@ -15,7 +15,7 @@ from utils import centered_resize, zoom_in, pick_large_img_locs
 
 # Settings
 IN_FOLDER = "../images"
-OUT_FOLDER = "../processed-images"
+OUT_FOLDER = ".."
 FILE_FORMATS = ["jpg", "png"]
 BG_COLOR = "#2f3030"
 NUM_COLS = 5
@@ -64,4 +64,4 @@ playlist_cover = playlist_cover.rotate(IMAGE_TILT, fillcolor=BG_COLOR)
 playlist_cover = zoom_in(playlist_cover, 1.2)
 
 # Save the final Spotify album cover.
-playlist_cover.save(f"{OUT_FOLDER}/test.jpg")
+playlist_cover.save(f"{OUT_FOLDER}/sample-cover.jpg")

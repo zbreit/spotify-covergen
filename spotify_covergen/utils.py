@@ -1,4 +1,5 @@
 from PIL import Image
+from typing import Generator, Tuple
 
 def centered_resize(image: Image, size: (int, int)) -> Image:
     """
@@ -37,7 +38,9 @@ def zoom_in(image: Image, zoom_level: float) -> Image:
 
     return cropped.resize((old_width, old_height))
 
-def pick_large_img_locs(num_cols: int, num_rows: int, num_large_imgs: int):
-    """A generator for (x, y) tuples indicating where large 2x2 images should be placed in an image"""
+def pick_large_img_locs(num_cols, num_rows, num_large_imgs) -> Generator[Tuple[int, int], None, None]:
+    """
+    A generator for (x, y) tuples indicating where large 2x2 images should be placed in an image
+    """
     yield (1, 2)
     yield (3, 3)
