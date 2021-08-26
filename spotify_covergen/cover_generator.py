@@ -35,13 +35,11 @@ NUM_IMGS = NUM_COLS * NUM_ROWS + NUM_LARGE_IMGS
 # Magic stuff. Basically, search for files with the given extensions and put them in a list.
 all_files = [file for format in FILE_FORMATS for file in glob.glob(f"{IN_FOLDER}/*.{format}")] * 4
 album_files = random.sample(all_files, NUM_IMGS)
-album_count = len(album_files)
 album_imgs = [Image.open(file) for file in album_files]
 
 # Paste small album covers into a grid, iteratively
 playlist_cover = Image.new('RGB', (OUT_WIDTH, OUT_HEIGHT), color=BG_COLOR)
 i = 0
-used_cells = set()
 for xcursor in range(0, OUT_WIDTH, GAP_SIZE + CELL_WIDTH):
     for ycursor in range(0, OUT_HEIGHT, GAP_SIZE + CELL_HEIGHT):
         img = album_imgs[i]

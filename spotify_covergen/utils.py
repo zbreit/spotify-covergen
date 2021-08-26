@@ -1,7 +1,7 @@
 from PIL import Image
 from typing import Generator, Tuple
 
-def centered_resize(image: Image, size: (int, int)) -> Image:
+def centered_resize(image: Image, size: Tuple[int, int]) -> Image:
     """
     Resizes an image, cropping and centering it doesn't match the target resolution. 
     Like CSS's `background-fill: cover`
