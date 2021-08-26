@@ -1,3 +1,3 @@
 # 💿 Spotify CoverGen
-Create stylish covers for your Spotify playlists.
-
+![Sample Playlist Cover](./sample-cover.jpg)
+Create stylish covers for your Spotify playlists
