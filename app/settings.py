@@ -3,23 +3,20 @@ Settings file (inspired by https://realpython.com/flask-by-example-part-1-projec
 """
 
 import os
-basedir = os.path.abspath(os.path.dirname(__file__))
 from dotenv import load_dotenv
 
-# Load Spotipy and other environment configs from `.env`
 load_dotenv()
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 class Settings(object):
-    # Flask Settings
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = os.environ['SECRET_KEY']
-
-    # Spotipy Settings
-    SPOTIPY_CLIENT_ID = os.environ['SPOTIPY_CLIENT_ID']
-    SPOTIPY_CLIENT_SECRET = os.environ['SPOTIPY_CLIENT_SECRET']
-    SPOTIPY_REDIRECT_URI = os.environ['SPOTIPY_REDIRECT_URI']
+    SPOTIFY_CLIENT_ID = os.environ['SPOTIFY_CLIENT_ID']
+    SPOTIFY_CLIENT_SECRET = os.environ['SPOTIFY_CLIENT_SECRET']
+    SPOTIFY_REDIRECT_URI = os.environ['SPOTIFY_REDIRECT_URI']
 
 
 class ProductionSettings(Settings):

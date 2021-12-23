@@ -1,7 +1,6 @@
 """Creates a Spotify cover"""
 import glob
 import random
-import numpy as np
 from PIL import Image
 from utils import centered_resize, zoom_in, pick_large_img_locs
 
