@@ -112,40 +112,5 @@ def handle_unauthorized_error(error):
     
     return redirect(url_for('index'))
 
-#         var options = {
-#           url: 'https://api.spotify.com/v1/me',
-#           headers: { 'Authorization': 'Bearer ' + access_token },
-#           json: true
-#         };
-
-#         // use the access token to access the Spotify Web API
-#         request.get(options, function(error, response, body) {
-#           console.log(body);
-#         });
-
-# @app.route('/refresh_token', methods='POST')
-# def refresh_token():
-#   refresh_token = session.get('refresh_token')
-
-#   var authOptions = {
-#     url: 'https://accounts.spotify.com/api/token',
-#     headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
-#     form: {
-#       grant_type: 'refresh_token',
-#       refresh_token: refresh_token
-#     },
-#     json: true
-#   };
-
-#   request.post(authOptions, function(error, response, body) {
-#     if (!error && response.statusCode === 200) {
-#       var access_token = body.access_token;
-#       res.send({
-#         'access_token': access_token
-#       });
-#     }
-#   });
-# });
-
 if __name__ == '__main__':
     app.run()
