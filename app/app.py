@@ -2,9 +2,11 @@ import logging
 import secrets
 import requests
 from urllib.parse import urlencode
-from base64 import urlsafe_b64encode
 from flask import render_template, session, url_for, redirect, request, flash
 from flask import Flask
+from werkzeug.exceptions import Unauthorized
+from utils.errors import SpotifyAPIError
+from utils.urls import to_b64_string
 
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
@@ -38,31 +40,24 @@ def callback():
     stored_state = session.get('spotify_auth_state')
 
     if state is None or state != stored_state:
-        logger.error(f'Invalid state: {state=}, {stored_state=}')
-        flash('Error logging into Spotify, please try again!', 'error')
-
-        return redirect(url_for('index'))
+        return Unauthorized(f'Invalid Spotify auth state: {state=}, {stored_state=}')
 
     session.pop('spotify_auth_state')
 
-    form_data = {
-        'redirect_uri': app.config['SPOTIFY_REDIRECT_URI'],
-        'grant_type': 'authorization_code',
-        'code': code
-    }
-
+    # Request spotify API token for the user if they gave the correct permissions to this app
     authorization = f'{app.config["SPOTIFY_CLIENT_ID"]}:{app.config["SPOTIFY_CLIENT_SECRET"]}'
-    headers = {
-        'Authorization': f'Basic {urlsafe_b64encode(authorization.encode()).decode()}'
-    }
+    response = requests.post(
+        'https://accounts.spotify.com/api/token', 
+        data={
+            'redirect_uri': app.config['SPOTIFY_REDIRECT_URI'],
+            'grant_type': 'authorization_code',
+            'code': code
+        }, 
+        headers={'Authorization': f'Basic {to_b64_string(authorization)}'}
+    )
 
-    response = requests.post('https://accounts.spotify.com/api/token', data=form_data, headers=headers)
-
-    if response.status_code != 200:
-        logger.error(f'Error with the HTTP request to Spotify: {response.text=}')
-        flash('Error connecting your account with the Spotify API', 'error')
-
-        return redirect(url_for('index'))
+    if not response.ok:
+        raise SpotifyAPIError(response)
 
     response_json = response.json()
     logger.info(f'{response_json=}')
@@ -74,6 +69,47 @@ def callback():
     session['spotify_refresh_token'] = refresh_token
     session['authenticated'] = True
 
+    session['user_profile'] = get_spotify_profile()
+
+    return redirect(url_for('cover_generator'))
+
+    
+def get_spotify_profile():
+    response = requests.get(
+        'https://api.spotify.com/v1/me',
+        headers={'Authorization': f'Bearer {session["spotify_access_token"]}'}
+    )
+
+    if not response.ok:
+        raise SpotifyAPIError(response)
+
+    json = response.json()
+
+    # Only select useful user profile attributes
+    return {
+        'image': json['images'][0]['url'],
+        'display_name': json['display_name']
+    }
+
+@app.route('/cover-generator')
+def cover_generator():
+    if not ('authenticated' in session and session['authenticated'] and 'user_profile' in session):
+        raise Unauthorized()
+
+    return render_template('cover_generator.html')
+
+@app.errorhandler(SpotifyAPIError)
+def handle_spotify_error(error: SpotifyAPIError):
+    logger.error(error)
+    flash(f'Error with the Spotify API: {error.description}', 'error')
+
+    return redirect(url_for('index'))
+
+@app.errorhandler(Unauthorized)
+def handle_unauthorized_error(error):
+    logger.error(error)
+    flash(f'Cannot access that page without signing in', 'error')
+    
     return redirect(url_for('index'))
 
 #         var options = {
@@ -87,45 +123,29 @@ def callback():
 #           console.log(body);
 #         });
 
-#         // we can also pass the token to the browser to make requests from there
-#         res.redirect('/#' +
-#           querystring.stringify({
-#             access_token: access_token,
-#             refresh_token: refresh_token
-#           }));
-#       } else {
-#         res.redirect('/#' +
-#           querystring.stringify({
-#             error: 'invalid_token'
-#           }));
-#       }
-#     });
-#   }
+# @app.route('/refresh_token', methods='POST')
+# def refresh_token():
+#   refresh_token = session.get('refresh_token')
+
+#   var authOptions = {
+#     url: 'https://accounts.spotify.com/api/token',
+#     headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
+#     form: {
+#       grant_type: 'refresh_token',
+#       refresh_token: refresh_token
+#     },
+#     json: true
+#   };
+
+#   request.post(authOptions, function(error, response, body) {
+#     if (!error && response.statusCode === 200) {
+#       var access_token = body.access_token;
+#       res.send({
+#         'access_token': access_token
+#       });
+#     }
+#   });
 # });
-
-@app.route('/refresh_token', methods='POST')
-def refresh_token():
-  refresh_token = session.get('refresh_token')
-
-  var authOptions = {
-    url: 'https://accounts.spotify.com/api/token',
-    headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
-    form: {
-      grant_type: 'refresh_token',
-      refresh_token: refresh_token
-    },
-    json: true
-  };
-
-  request.post(authOptions, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
-      var access_token = body.access_token;
-      res.send({
-        'access_token': access_token
-      });
-    }
-  });
-});
 
 if __name__ == '__main__':
     app.run()

@@ -2,7 +2,7 @@
 import glob
 import random
 from PIL import Image
-from utils import centered_resize, zoom_in, pick_large_img_locs
+from .utils.image import centered_resize, zoom_in, pick_large_img_locs
 
 
 # TODO: 
