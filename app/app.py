@@ -142,16 +142,20 @@ def get_spotify_playlists():
 def get_album_covers(playlist_id, max_item_count=float('inf')):
     playlist_items = paginated_get_request(
         f'{SPOTIFY_API_URL}/playlists/{playlist_id}/tracks',
-        params={'fields': 'items(track(album(images))),next'},
+        params={'fields': 'items(track(album(images),name)),next'},
         max_item_count=max_item_count,
         headers={'Authorization': f'Bearer {session["spotify_access_token"]}'},
     )
 
     # Note: might be cool to grab `item['track']['artists'][0]['images'][0]['url']`
-    # TODO: handle tracks with no images! (raises IndexError)
-    album_covers = list(set([item['track']['album']['images'][0]['url'] for item in playlist_items]))
+    album_covers = set()
+    for item in playlist_items:
+        try:
+            album_covers.add(item['track']['album']['images'][0]['url'])
+        except IndexError:
+            app.logger.warn(f'{item["track"]["name"]} has no cover image!')
 
-    return album_covers
+    return list(album_covers)
 
 if __name__ == '__main__':
     app.run()
