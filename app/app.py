@@ -148,6 +148,7 @@ def get_album_covers(playlist_id, max_item_count=float('inf')):
     )
 
     # Note: might be cool to grab `item['track']['artists'][0]['images'][0]['url']`
+    # TODO: handle tracks with no images! (raises IndexError)
     album_covers = list(set([item['track']['album']['images'][0]['url'] for item in playlist_items]))
 
     return album_covers
