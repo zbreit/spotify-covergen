@@ -1,20 +1,20 @@
-import logging
 import secrets
 import requests
 from urllib.parse import urlencode
 from flask import render_template, session, url_for, redirect, request, flash
 from flask import Flask
 from werkzeug.exceptions import Unauthorized
-from utils.errors import SpotifyAPIError
-from utils.urls import to_b64_string
+from app.utils.http import paginated_get_request, urlsafe_b64_string
+from app.utils.errors import SpotifyAPIError
 
-logger = logging.getLogger(__name__)
 app = Flask(__name__)
-app.config.from_object('settings.Settings')
+app.config.from_object('app.settings.Settings')
+
+SPOTIFY_API_URL = 'https://api.spotify.com/v1'
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template('index.jinja')
 
 
 @app.route('/login', methods=['POST'])
@@ -53,30 +53,69 @@ def callback():
             'grant_type': 'authorization_code',
             'code': code
         }, 
-        headers={'Authorization': f'Basic {to_b64_string(authorization)}'}
+        headers={'Authorization': f'Basic {urlsafe_b64_string(authorization)}'}
     )
 
     if not response.ok:
         raise SpotifyAPIError(response)
 
     response_json = response.json()
-    logger.info(f'{response_json=}')
+    app.logger.info(f'{response_json=}')
 
     access_token = response_json['access_token']
     refresh_token = response_json['refresh_token']
 
     session['spotify_access_token'] = access_token
     session['spotify_refresh_token'] = refresh_token
-    session['authenticated'] = True
-
     session['user_profile'] = get_spotify_profile()
 
-    return redirect(url_for('cover_generator'))
+    return redirect(url_for('playlist_selector'))
 
+@app.route('/playlist-selector')
+def playlist_selector():
+    if 'user_profile' not in session:
+        raise Unauthorized()
+
+    playlists = get_spotify_playlists()
     
+    return render_template('playlist_selector.jinja', playlists=playlists)
+
+@app.route('/cover-generator')
+def cover_generator():
+    if 'user_profile' not in session:
+        raise Unauthorized()
+
+    playlist_id = request.args.get('target_playlist')
+    album_covers = get_album_covers(playlist_id)
+    
+    return render_template('cover_generator.jinja', album_covers=album_covers)
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session['authenticated'] = False
+    session.pop('user_profile')
+    session.pop('spotify_access_token')
+    session.pop('spotify_refresh_token')
+
+    return redirect(url_for('index'))
+
+@app.errorhandler(SpotifyAPIError)
+def handle_spotify_error(error: SpotifyAPIError):
+    app.logger.error(error)
+    flash(f'Error with the Spotify API: {error.description}', 'error')
+
+    return redirect(url_for('index'))
+
+@app.errorhandler(Unauthorized)
+def handle_unauthorized_error(error):
+    app.logger.error(error)
+    flash(f'Cannot access that page without signing in', 'error')
+    
+    return redirect(url_for('index'))
+
 def get_spotify_profile():
     response = requests.get(
-        'https://api.spotify.com/v1/me',
+        f'{SPOTIFY_API_URL}/me',
         headers={'Authorization': f'Bearer {session["spotify_access_token"]}'}
     )
 
@@ -91,26 +130,24 @@ def get_spotify_profile():
         'display_name': json['display_name']
     }
 
-@app.route('/cover-generator')
-def cover_generator():
-    if not ('authenticated' in session and session['authenticated'] and 'user_profile' in session):
-        raise Unauthorized()
+def get_spotify_playlists():
+    return paginated_get_request(
+            f'{SPOTIFY_API_URL}/me/playlists',
+            params={'limit': 2},
+            headers={'Authorization': f'Bearer {session["spotify_access_token"]}'},
+        )
 
-    return render_template('cover_generator.html')
+def get_album_covers(playlist_id, limit=100):
+    playlist_items = paginated_get_request(
+        f'{SPOTIFY_API_URL}/playlists/{playlist_id}/tracks',
+        params={'limit': limit, 'fields': 'items(track(album(images))),next'},
+        headers={'Authorization': f'Bearer {session["spotify_access_token"]}'},
+    )
 
-@app.errorhandler(SpotifyAPIError)
-def handle_spotify_error(error: SpotifyAPIError):
-    logger.error(error)
-    flash(f'Error with the Spotify API: {error.description}', 'error')
+    # Note: might be cool to grab `item['track']['artist']['images']`
+    album_covers = set([item['track']['album']['images'][0]['url'] for item in playlist_items])
 
-    return redirect(url_for('index'))
-
-@app.errorhandler(Unauthorized)
-def handle_unauthorized_error(error):
-    logger.error(error)
-    flash(f'Cannot access that page without signing in', 'error')
-    
-    return redirect(url_for('index'))
+    return album_covers
 
 if __name__ == '__main__':
     app.run()

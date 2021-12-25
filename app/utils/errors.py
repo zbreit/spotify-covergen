@@ -28,4 +28,3 @@ class SpotifyAPIError(HTTPException):
             return json['error_description']  # Access error response (with extra detail)
         
         return json['error']  # Access error response (with limited detail)
-

@@ -1,0 +1,19 @@
+{% extends 'base.jinja' %}
+
+{% block content %}
+<p>Create stylish playlists for your Spotify Playlists</p>
+
+<section class="d-flex flex-wrap justify-content-center">
+{% for album_cover in album_covers %}
+    <img class="album-cover m-3" src="{{album_cover}}" />
+{% endfor %}
+</section>
+
+<style>
+.album-cover {
+    width: 200px;
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+</style>
+{% endblock %}
