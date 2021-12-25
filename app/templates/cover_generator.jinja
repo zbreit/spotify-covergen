@@ -3,17 +3,52 @@
 {% block content %}
 <p>Create stylish playlists for your Spotify Playlists</p>
 
-<section class="d-flex flex-wrap justify-content-center">
-{% for album_cover in album_covers %}
-    <img class="album-cover m-3" src="{{album_cover}}" />
-{% endfor %}
+<div class="loading-icon">💿</div>
+
+<section class="cover-generator">
+    <canvas class="m-3"></canvas>
+
+    <button id="regenerate" class="btn btn-primary">⭮ Generate New Cover</button>
+    <button id="save-to-spotify" class="btn btn-secondary">💾 Save to Spotify</button>
 </section>
 
+
+<script>
+    // Inject relevant data into the JS
+    const ALBUM_COVERS = {{album_covers|tojson|safe}};
+    const SPOTIFY_ACCESS_TOKEN = {{session['spotify_access_token']|tojson|safe}};
+    const PLAYLIST_ID = {{request.args.get('target_playlist')|tojson|safe}};
+</script>
+
+<script src="{{ url_for('static', filename='scripts/cover-generator.js') }}"></script>
+
 <style>
-.album-cover {
-    width: 200px;
-    aspect-ratio: 1;
-    object-fit: cover;
+.loading-icon {
+    animation: rotate 1.5s linear infinite;
+    font-size: 4em;
 }
+
+.images-loaded .loading-icon {
+    display: none;
+}
+
+.cover-generator {
+    display: none;
+}
+
+.images-loaded .cover-generator {
+    display: block;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 </style>
+
 {% endblock %}

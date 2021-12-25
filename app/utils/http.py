@@ -19,8 +19,8 @@ def paginated_get_request(url, max_item_count=float('inf'), params=None, **kwarg
     if params is None:
         params = {}
 
-    DEFAULT_ITEM_LIMIT = 20
-    params.setdefault('limit', DEFAULT_ITEM_LIMIT)
+    MAX_ITEM_LIMIT = 50
+    params.setdefault('limit', MAX_ITEM_LIMIT)
 
     items = []
     more_items_left = True

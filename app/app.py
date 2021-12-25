@@ -1,3 +1,4 @@
+from functools import lru_cache
 import secrets
 import requests
 from urllib.parse import urlencode
@@ -25,7 +26,7 @@ def login():
     params = {
         'response_type': 'code',
         'client_id': app.config['SPOTIFY_CLIENT_ID'],
-        'scope': 'user-read-private user-read-email',
+        'scope': 'user-read-private playlist-modify-public playlist-modify-private ugc-image-upload',
         'redirect_uri': app.config['SPOTIFY_REDIRECT_URI'],
         'state': state
     }
@@ -137,15 +138,17 @@ def get_spotify_playlists():
             headers={'Authorization': f'Bearer {session["spotify_access_token"]}'},
         )
 
-def get_album_covers(playlist_id, limit=100):
+@lru_cache(maxsize=2048)
+def get_album_covers(playlist_id, max_item_count=float('inf')):
     playlist_items = paginated_get_request(
         f'{SPOTIFY_API_URL}/playlists/{playlist_id}/tracks',
-        params={'limit': limit, 'fields': 'items(track(album(images))),next'},
+        params={'fields': 'items(track(album(images))),next'},
+        max_item_count=max_item_count,
         headers={'Authorization': f'Bearer {session["spotify_access_token"]}'},
     )
 
-    # Note: might be cool to grab `item['track']['artist']['images']`
-    album_covers = set([item['track']['album']['images'][0]['url'] for item in playlist_items])
+    # Note: might be cool to grab `item['track']['artists'][0]['images'][0]['url']`
+    album_covers = list(set([item['track']['album']['images'][0]['url'] for item in playlist_items]))
 
     return album_covers
 
