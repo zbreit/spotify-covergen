@@ -26,7 +26,7 @@ def login():
     params = {
         'response_type': 'code',
         'client_id': app.config['SPOTIFY_CLIENT_ID'],
-        'scope': 'user-read-private playlist-modify-public playlist-modify-private ugc-image-upload',
+        'scope': 'user-read-email user-read-private playlist-modify-public playlist-modify-private ugc-image-upload',
         'redirect_uri': app.config['SPOTIFY_REDIRECT_URI'],
         'state': state
     }
