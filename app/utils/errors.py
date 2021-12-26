@@ -20,7 +20,7 @@ class SpotifyAPIError(HTTPException):
         try:
             json = response.json()
         except JSONDecodeError:
-            return response.reason
+            return response.text
 
         if 'api.spotify.com' in response.request.url:
             return json['error']['message']   # Regular error response

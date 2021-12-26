@@ -26,7 +26,7 @@ def login():
     params = {
         'response_type': 'code',
         'client_id': app.config['SPOTIFY_CLIENT_ID'],
-        'scope': 'user-read-email user-read-private playlist-modify-public playlist-modify-private playlist-read-collaborative playlist-read-private ugc-image-upload',
+        'scope': 'user-read-email ugc-image-upload playlist-read-collaborative playlist-read-private playlist-modify-public playlist-modify-private',
         'redirect_uri': app.config['SPOTIFY_REDIRECT_URI'],
         'state': state
     }
@@ -126,8 +126,13 @@ def get_spotify_profile():
     json = response.json()
 
     # Only select useful user profile attributes
+    try:
+        image = json['images'][0]['url']
+    except IndexError:
+        image = url_for('static', filename='img/backup-img.jpg')
+
     return {
-        'image': json['images'][0]['url'],
+        'image': image,
         'display_name': json['display_name']
     }
 
