@@ -40,7 +40,7 @@ def callback():
     code = request.args.get('code')
     state = request.args.get('state')
     stored_state = session.get('spotify_auth_state')
-    
+
     session.pop('spotify_auth_state')    
 
     if state is None or state != stored_state:
@@ -49,9 +49,9 @@ def callback():
     access_token, refresh_token = get_spotify_access_token(code, 
         app.config['SPOTIFY_REDIRECT_URI'],
         app.config['SPOTIFY_CLIENT_ID'],
-        app.config['SPOTIY_CLIENT_SECRET'])
+        app.config['SPOTIFY_CLIENT_SECRET'])
 
-    session['spotify_access_token'], = access_token
+    session['spotify_access_token'] = access_token
     session['spotify_refresh_token'] = refresh_token
     session['user_profile'] = get_spotify_profile(access_token)
 
@@ -62,8 +62,12 @@ def playlist_selector():
     if 'user_profile' not in session:
         raise Unauthorized()
 
-    playlists = get_spotify_playlists()
-    playlists_with_editable_covers = list(filter(playlist_has_editable_cover, playlists))
+    playlists = get_spotify_playlists(session['spotify_access_token'])
+    playlists_with_editable_covers = []
+
+    for playlist in playlists:
+        if playlist_has_editable_cover(playlist, session['user_profile']['display_name']):
+            playlists_with_editable_covers.append(playlist)
     
     return render_template('playlist_selector.jinja', playlists=playlists_with_editable_covers)
 
@@ -73,7 +77,7 @@ def cover_generator():
         raise Unauthorized()
 
     playlist_id = request.args.get('target_playlist')
-    album_covers = get_album_covers(playlist_id)
+    album_covers = get_album_covers(playlist_id, session['spotify_access_token'])
     
     return render_template('cover_generator.jinja', album_covers=album_covers)
 
