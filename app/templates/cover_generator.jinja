@@ -1,9 +1,9 @@
 {% extends 'base.jinja' %}
 
 {% block content %}
-<p>Create stylish playlists for your Spotify Playlists</p>
-
-<div class="loading-icon">💿</div>
+<div class="loading-icon-container">
+    <span class="loading-icon">💿</span>
+</div>
 
 <section class="cover-generator">
     <canvas class="m-3"></canvas>
@@ -19,36 +19,7 @@
     const SPOTIFY_ACCESS_TOKEN = {{session['spotify_access_token']|tojson|safe}};
     const PLAYLIST_ID = {{request.args.get('target_playlist')|tojson|safe}};
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.min.js"></script>
 <script src="{{ url_for('static', filename='scripts/cover-generator.js') }}"></script>
-
-<style>
-.loading-icon {
-    animation: rotate 1.5s linear infinite;
-    font-size: 4em;
-}
-
-.images-loaded .loading-icon {
-    display: none;
-}
-
-.cover-generator {
-    display: none;
-}
-
-.images-loaded .cover-generator {
-    display: block;
-}
-
-@keyframes rotate {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-</style>
 
 {% endblock %}

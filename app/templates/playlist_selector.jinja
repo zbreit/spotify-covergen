@@ -1,8 +1,10 @@
 {% extends 'base.jinja' %}
 
 {% block content %}
-<img src="{{session['user_profile']['image']}}" alt="Spotify Profile Image" class="profile-img">
-<h2>Welcome, {{session['user_profile']['display_name']}}</h2>
+<div class="profile-container">
+    <img src="{{session['user_profile']['image']}}" alt="Spotify Profile Image" class="profile-image">
+    <p class="profile-name">Welcome, {{session['user_profile']['display_name']}}</p>
+</div>
 
 {% if playlists %}
     <form action="{{ url_for('cover_generator') }}" method="GET">
@@ -27,14 +29,4 @@
 <script>
     const SPOTIFY_ACCESS_TOKEN = {{session['spotify_access_token']|tojson|safe}};
 </script>
-
-<style>
-.profile-img {
-    width: 200px;
-    height: 200px;
-    object-fit: cover;
-    margin: 0 auto;
-    border-radius: 5px;
-}
-</style>
 {% endblock %}

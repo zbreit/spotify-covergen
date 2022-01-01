@@ -5,42 +5,41 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
-
-    <title>Spotify CoverGen</title>
+    <title>Playlist Beautifier</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💿</text></svg>">
-
+  
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link href="{{url_for('static', filename='css/main.css')}}" rel="stylesheet">
 </head>
 
 <body>
-    <div class="container">
-        <div class="row justify-content-center text-center">
-            <div class="col-5 mt-2">
-                <h1>💿 Spotify CoverGen</h1>
-    
-                <!--Flashed messages from Flask-->
-                {% with messages = get_flashed_messages(with_categories=True) %}
-                {% if messages %}
-                {%- for category, msg in messages %}
-                <div class="alert alert-{{'danger' if category == 'error' else 'success'}}" role="alert">
-                    {{ msg }}
-                </div>
-                {% endfor -%}
-                {% endif %}
-                {% endwith %}
+    <section class="page-container">
+        <header class="img-text-container">
+            <img class="spotify-icon" src="{{url_for('static', filename='img/spotify-icon.png')}}" alt="Spotify Icon">
+            <h1>Playlist Beautifier</h1>
+        </header>
 
-                {% block content %}{% endblock %}
-            </div>
+        <!--Flashed messages from Flask-->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+        {%- for category, msg in messages %}
+        <div class="alert alert-{{'danger' if category == 'error' else 'success'}}" role="alert">
+            {{ msg }}
         </div>
-    </div>
-
-    <!-- Optional JavaScript; choose one of the two! -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous">
-    </script>
+        {% endfor -%}
+        {% endif %}
+        {% endwith %}
+            
+        <main class="content-container">
+            {% block content %}{% endblock %}
+        </main>
+    </section>
+    
 </body>
 
 </html>
