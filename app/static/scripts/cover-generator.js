@@ -277,13 +277,18 @@ function setupSettingsGUI() {
     gui.addColor(SETTINGS, 'backgroundColor').onChange(redrawGrid);
     gui.add(SETTINGS, 'tiltAngle', -180, 180, 5).onChange(redrawGrid);
     gui.add(SETTINGS, 'gapSize', 0, 32, 1).onChange(redrawGrid);
-    gui.add(SETTINGS, 'cellsPerSide', 1, SETTINGS.maxCellsPerSide, 1).onChange(redrawGrid);
-    gui.add(SETTINGS, 'numLargeCells', 0, SETTINGS.cellsPerSide - 1, 1).onFinishChange(() => {
-        SETTINGS.largeImageLocations = pickLargeCellLocations(SETTINGS.cellsPerSide, SETTINGS.numLargeCells);
-        redrawGrid();
+    gui.add(SETTINGS, 'cellsPerSide', 1, 10, 1).onChange(redrawGrid);
+    
+    let lastNumLargeCells = SETTINGS.numLargeCells;
+    gui.add(SETTINGS, 'numLargeCells', 0, 9, 1).onChange(() => {
+        // Prevent excessive rerenders (since onChange isn't just fired when the value
+        // goes up a step)
+        if (lastNumLargeCells !== SETTINGS.numLargeCells) {
+            SETTINGS.largeImageLocations = pickLargeCellLocations(SETTINGS.cellsPerSide, SETTINGS.numLargeCells);
+            redrawGrid();
+            lastNumLargeCells = SETTINGS.numLargeCells;
+        }
     });
-    // gui.add(SETTINGS, 'largeImageLocations').onChange(redrawGrid);
-    console.log(gui.getSaveObject());
 }
 
 main();
