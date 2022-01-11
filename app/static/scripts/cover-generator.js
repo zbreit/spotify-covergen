@@ -276,7 +276,7 @@ function setupSettingsGUI() {
     const gui = new dat.GUI();
 
     gui.addColor(SETTINGS, 'backgroundColor').onChange(redrawGrid);
-    gui.add(SETTINGS, 'tiltAngle', -180, 180, 5).onChange(redrawGrid);
+    gui.add(SETTINGS, 'tiltAngle', -45, 45, 5).onChange(redrawGrid);
     gui.add(SETTINGS, 'gapSize', 0, 32, 1).onChange(redrawGrid);
     gui.add(SETTINGS, 'cellsPerSide', 1, 10, 1).onChange(redrawGrid);
     
