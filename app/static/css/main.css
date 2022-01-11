@@ -7,6 +7,9 @@
     --font-stack: 'Work Sans', sans-serif;
     --spacing: 1rem;
     --border-radius: 2px;
+
+    --normal-text-size: clamp(1rem, -0.8750rem + 8.3333vw, 1.25rem);
+    --header-text-size: calc(var(--normal-text-size) * 2);
 }
 
 /* Overall Styling */
@@ -15,7 +18,7 @@ body {
 }
 
 .page-container {
-    max-width: 640px;
+    max-width: 512px;
     padding: 2rem;
     margin: 0 auto;
 }
@@ -30,11 +33,20 @@ body {
 body {
     font-family: var(--font-stack);
     color: var(--text-color);
-    font-size: clamp(1rem, -0.8750rem + 8.3333vw, 2rem);
+    font-size: var(--normal-text-size);
 }
 
 h1, h2, h3, h4, h5, h6, p {
     margin: var(--spacing) 0;
+}
+
+h1 {
+    font-weight: bold;
+    font-size: var(--header-text-size);
+}
+
+h2 {
+    font-size: calc(var(--header-text-size) * 0.75);
 }
 
 /* Components */
@@ -61,8 +73,35 @@ img {
 select {
     background: var(--background-color);
     color: var(--text-color);
-    border: 2px solid white;
+    border: 3px solid white;
     border-radius: var(--border-radius);
+    font-size: 1rem;
+}
+
+a, .btn-link {
+    color: var(--text-color);
+    display: inline;
+    margin: 0;
+    padding: 0;
+    background: none;
+    font-size: var(--normal-text-size);
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    background: none;
+}
+
+/**
+ * Utilities
+ */
+
+.d-block {
+    display: block;
+}
+
+.underlined {
+    text-decoration: underline;
 }
 
 .img-text-container {
@@ -77,10 +116,37 @@ select {
     gap: var(--spacing);
 }
 
+.mt {
+    margin-top: var(--spacing);
+}
+
+.mt-2 {
+    margin-top: calc(var(--spacing) * 2);
+}
+
 /* Base Page */
+.logotype {
+    margin-bottom: var(--spacing);
+}
+
+.logotype h1 {
+    margin: 0;
+}
+
 .spotify-icon {
     width: 2.25rem;
     height: 2.25rem;
+    margin-right: var(--spacing);
+}
+
+.main-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin: var(--spacing);
+    align-items: center;
+}
+
+.nav-link {
     margin-right: var(--spacing);
 }
 
@@ -117,20 +183,20 @@ select {
 /* Playlist Selector Page */
 .profile-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
     margin-bottom: var(--spacing);
 }
 
 .profile-name {
     margin: 0;
-    margin-top: var(--spacing);
 }
+
 .profile-image {
     width: 200px;
     height: 200px;
     object-fit: cover;
-    border-radius: 5px;
+    border-radius: var(--border-radius);
     flex-shrink: 0;
     margin-right: var(--spacing);
 }
@@ -158,6 +224,17 @@ select {
     display: block;
 }
 
+.btn-container {
+    display: flex;
+    gap: var(--spacing);
+    flex-wrap: wrap;
+}
+
+.btn-container > button {
+    flex: 1;
+    margin: 0;
+}
+
 @keyframes rotate {
     from {
         transform: rotate(0deg);
@@ -165,4 +242,10 @@ select {
     to {
         transform: rotate(360deg);
     }
+}
+
+#playlist-cover {
+    width: 100%;
+    aspect-ratio: 1;
+    margin-bottom: var(--spacing);
 }

@@ -3,27 +3,27 @@
 {% block content %}
 <div class="profile-container">
     <img src="{{session['user_profile']['image']}}" alt="Spotify Profile Image" class="profile-image">
-    <p class="profile-name">Welcome, {{session['user_profile']['display_name']}}</p>
+    <h2 class="profile-name">
+        Welcome
+        <br>
+        {{session['user_profile']['display_name']}}
+    </h2>
 </div>
 
 {% if playlists %}
     <form action="{{ url_for('cover_generator') }}" method="GET">
-        <label for="target_playlist">Select a Playlist</label>
-        <select name="target_playlist" id="target_playlist">
+        <label for="target_playlist" class="d-block mt">Select a Playlist</label>
+        <select name="target_playlist" id="target_playlist" class="mt">
             {% for playlist in playlists %}
                 <option value="{{playlist['id']}}">{{playlist['name']}}</option>
             {% endfor %}
         </select>
 
-        <button type="submit" class="btn btn-primary my-2">Create Playlist Cover</button>
+        <button type="submit" class="btn btn-primary mt-2">Create Playlist Cover</button>
     </form>
 {% else %}
     <p>No playlists found!</p>
 {% endif %}
-
-<form action="{{ url_for('logout') }}" method="POST">
-    <button type="submit" class="btn btn-secondary">Log Out</button>
-</form>
 
 <!--Inject Spotify credentials to the client-side Javascript-->
 <script>

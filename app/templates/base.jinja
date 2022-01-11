@@ -14,15 +14,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="{{url_for('static', filename='css/main.css')}}" rel="stylesheet">
 </head>
 
 <body>
+    {% if session['user_profile'] %}
+        <nav class="main-navigation">
+            <a href="{{url_for('playlist_selector')}}" class="nav-link">🏠 Home</a>
+            <form action="{{url_for('logout')}}" method="POST">
+                <button type="submit" class="btn-link">🚪 Log Out</button>
+            </form>
+        </nav>
+    {% endif %}
+
     <section class="page-container">
-        <header class="img-text-container">
+        <div class="img-text-container logotype">
             <img class="spotify-icon" src="{{url_for('static', filename='img/spotify-icon.png')}}" alt="Spotify Icon">
             <h1>Playlist Beautifier</h1>
-        </header>
+        </div>
 
         <!--Flashed messages from Flask-->
         {% with messages = get_flashed_messages(with_categories=True) %}

@@ -15,7 +15,6 @@ app.logger.setLevel(app.config['LOG_LEVEL'])
 
 @app.route('/')
 def index():
-    app.logger.debug("I'm in debug mode")
     return render_template('index.jinja')
 
 
@@ -23,6 +22,7 @@ def index():
 def login():
     state = secrets.token_urlsafe(16)
     session['spotify_auth_state'] = state
+    app.logger.debug(f'{session["spotify_auth_state"]=} in /login')
 
     params = {
         'response_type': 'code',
@@ -37,11 +37,10 @@ def login():
 
 @app.route('/login/callback')
 def callback():
+    app.logger.debug(f'{session["spotify_auth_state"]} in /login/callback')
     code = request.args.get('code')
     state = request.args.get('state')
-    stored_state = session.get('spotify_auth_state')
-
-    session.pop('spotify_auth_state')    
+    stored_state = session.pop('spotify_auth_state', None) 
 
     if state is None or state != stored_state:
         return Unauthorized(f'Invalid Spotify auth state: {state=}, {stored_state=}')
@@ -83,7 +82,6 @@ def cover_generator():
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    session['authenticated'] = False
     session.pop('user_profile')
     session.pop('spotify_access_token')
     session.pop('spotify_refresh_token')
