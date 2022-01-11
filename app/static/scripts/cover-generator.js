@@ -57,6 +57,7 @@ function clearCanvas() {
 
 function drawRandomGrid() {
     CURRENT_IMAGES = shuffle(IMAGES);
+    SETTINGS.largeImageLocations = pickLargeCellLocations(SETTINGS.cellsPerSide, SETTINGS.numLargeCells);
     drawGrid(CURRENT_IMAGES, SETTINGS);
 }
 
