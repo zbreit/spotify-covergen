@@ -1,16 +1,24 @@
 # 💿 Spotify CoverGen
-![Sample Playlist Cover](./demo-images/covergen-demo.gif)
+
+<p align="center">
+    <img alt="Spotify CoverGen Live Demo" src="./demo-images/covergen-demo.gif" style="max-width: 500;"/>
+</p>
+
 [Spotify CoverGen](https://spotify-covergen.herokuapp.com) is a tool to create stylish covers for your Spotify playlists ✨
 
 
 ## Why make this?
 Let's face it, the default Spotify playlist covers are pretty ugly:
 
-<img alt="Spotify's Ugly Playlist Cover" src="./demo-images/default-playlist-cover.png" width="300" height="300"/>
+<p align="center">
+    <img alt="Spotify's Ugly Playlist Cover" src="./demo-images/default-playlist-cover.png" style="max-width: 300; max-height:300;"/>
+</p>
 
-My cover generator arranges the beautiful album artwork from your playlists into a masonry-style layout. Here's a much nicer cover that I created for that same playlist:
+My cover generator takes the beautiful album artwork from your playlists and arranges into a masonry layout. Here's a much nicer cover that I created for that same playlist:
 
-<img alt="My Beautiful Playlist Cover" src="./demo-images/my-playlist-cover.jpeg" width="300" height="300"/>
+<p align="center">
+    <img alt="My Beautiful Playlist Cover" src="./demo-images/my-playlist-cover.jpeg" style="max-width: 300; max-height:300;"/>
+</p>
 
 ## Spotify Development Mode
 
