@@ -14,7 +14,7 @@ Let's face it, the default Spotify playlist covers are pretty ugly:
     <img alt="Spotify's Ugly Playlist Cover" src="./demo-images/default-playlist-cover.png" width="300" height="300"/>
 </p>
 
-My cover generator takes the beautiful album artwork from your playlists and arranges into a masonry layout. Here's a much nicer cover that I created for that same playlist:
+My cover generator takes the beautiful album artwork from your playlists and arranges them into a masonry layout. Here's a much nicer cover that I created for that same playlist:
 
 <p align="center">
     <img alt="My Beautiful Playlist Cover" src="./demo-images/my-playlist-cover.jpeg" width="300" height="300"/>
